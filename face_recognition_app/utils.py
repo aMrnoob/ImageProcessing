@@ -41,7 +41,6 @@ def load_known_faces(folder="face_recognition_app/faces_recognized"):
 
         boxes = detect_faces(img)
         if len(boxes) != 1:
-            print(f"⚠️ {file} chứa {len(boxes)} khuôn mặt. Bỏ qua.")
             continue
 
         face_tensor = preprocess_face(img, boxes[0])
@@ -50,26 +49,32 @@ def load_known_faces(folder="face_recognition_app/faces_recognized"):
 
     return known
 
-def recognize_faces(img, known_faces):
+def recognize_faces(img, known_faces, threshold=0.4):
     boxes = detect_faces(img)
     annotated = img.copy()
 
     for box in boxes:
         face_tensor = preprocess_face(img, box)
-        if face_tensor is None: continue
-
+        if face_tensor is None:
+            continue
         emb = get_embedding(face_tensor)
-
-        best_match, best_dist = "Unknown", 1.0
+        best_match = "Unknown"
+        best_dist = float("inf")
         for name, known_emb in known_faces.items():
-            dist = norm(emb - known_emb)
-            if dist < best_dist and dist < 0.3:
-                best_match, best_dist = name, dist
+            dist = np.linalg.norm(emb - known_emb)
+            if dist < best_dist:
+                base_name = name.rsplit('_', 1)[0]
+                best_match = base_name
+                best_dist = dist
+
+        label = f"{best_match} ({best_dist:.2f})" if best_dist < threshold else f"Unknown ({best_dist:.2f})"
+        color = (0, 255, 0) if best_dist < threshold else (0, 0, 255)
 
         x1, y1, x2, y2 = box
-        cv2.rectangle(annotated, (x1, y1), (x2, y2), (0, 255, 0), 2)
-        cv2.putText(annotated, best_match, (x1, y1 - 10),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 0, 0), 2)
+        cv2.rectangle(annotated, (x1, y1), (x2, y2), color, 2)
+        cv2.putText(annotated, label, (x1, y1 - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
+        
     return annotated
 
 def preprocess_face(img, box):
@@ -96,9 +101,8 @@ def recognize_faces_video(video_path, known_faces):
         ret, frame = cap.read()
         if not ret:
             break
-        frame = cv2.resize(frame, (800, 600))
+        
         annotated = recognize_faces(frame, known_faces)
         stframe.image(cv2.cvtColor(annotated, cv2.COLOR_BGR2RGB), channels="RGB", use_container_width=True)
     
     cap.release()
-

@@ -24,19 +24,25 @@ def run():
                 img_np = np.array(img)
                 img_bgr = cv2.cvtColor(img_np, cv2.COLOR_RGB2BGR)
 
-                filename = os.path.join(FACE_DIR, f"{name_input.strip().lower()}.jpg")
-                cv2.imwrite(filename, img_bgr)
+                name = name_input.strip().lower()
+                existing = [
+                    f for f in os.listdir(FACE_DIR)
+                    if f.startswith(name + "_") and f.lower().endswith(('.jpg', '.jpeg', '.png'))
+                ]
+                next_index = len(existing) + 1
+                filename = os.path.join(FACE_DIR, f"{name}_{next_index}.jpg")
 
-                st.success(f"✅ Đã lưu khuôn mặt cho {name_input}")
-                st.rerun()
+                cv2.imwrite(filename, img_bgr)
+                st.image(img, caption=f"📸 Đã lưu: {filename}", use_column_width=True)
+                st.success(f"✅ Đã lưu khuôn mặt cho {name_input} (ảnh thứ {next_index})")
 
     with tab2:
         uploaded_image = st.file_uploader("📤 Tải ảnh có nhiều khuôn mặt", type=["jpg", "jpeg", "png"], key="detect_uploader")
         if uploaded_image:
-            img = Image.open(uploaded_image).convert("RGB")
-            img_np = np.array(img)
-            recognized_img = recognize_faces(img_np, known_faces)
-            st.image(cv2.cvtColor(recognized_img, cv2.COLOR_BGR2RGB), caption="📸 Kết quả nhận diện", use_column_width=True)
+            file_bytes = np.asarray(bytearray(uploaded_image.read()), dtype=np.uint8)
+            img_bgr = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
+            recognized_img = recognize_faces(img_bgr.copy(), known_faces)
+            st.image(recognized_img, caption="📸 Kết quả nhận diện", channels="BGR", use_column_width=True)
 
     with tab3:
         st.subheader("🎥 Nhận diện từ video")
