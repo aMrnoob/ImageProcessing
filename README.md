@@ -8,14 +8,27 @@
 
 ---
 
+### ✅ Kết quả mong muốn sau khi sửa:
+
+---
+
 ## 🚀 Cài đặt
 
 ### 1. Cài thư viện cần thiết:
-```bash
+```
 pip install -r requirements.txt
 
 
-
+```
 ### 2. Chạy ứng dụng:
-```bash
+```
 streamlit run controller.py
+
+```
+
+
+
+
+
+
+
