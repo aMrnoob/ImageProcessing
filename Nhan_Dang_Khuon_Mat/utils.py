@@ -4,7 +4,6 @@ import cv2
 import onnxruntime as ort
 from numpy.linalg import norm
 from Nhan_Dang_Khuon_Mat.yunet import YuNet
-import cv2 as cv 
 import streamlit as st
 
 detector = YuNet(
@@ -13,8 +12,8 @@ detector = YuNet(
     confThreshold=0.6,
     nmsThreshold=0.3,
     topK=5000,
-    backendId=cv.dnn.DNN_BACKEND_DEFAULT,
-    targetId=cv.dnn.DNN_TARGET_CPU
+    backendId=cv2.dnn.DNN_BACKEND_DEFAULT,
+    targetId=cv2.dnn.DNN_TARGET_CPU
 )
 recognizer = ort.InferenceSession("Nhan_Dang_Khuon_Mat/model/face_recognition_sface_2021dec.onnx")
 

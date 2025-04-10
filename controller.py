@@ -8,7 +8,8 @@ menu = st.sidebar.selectbox(
     [
         "🎭 Nhận diện khuôn mặt",
         "👁️ Nhận dạng đối tượng (YOLOv8)",
-        "🍎 Nhận dạng trái cây"
+        "🍎 Nhận dạng trái cây",
+        "🔢 Nhận dạng chữ số"
     ]
 )
 
@@ -25,4 +26,9 @@ elif menu == "👁️ Nhận dạng đối tượng (YOLOv8)":
 elif menu == "🍎 Nhận dạng trái cây":
     from Nhan_Dang_Trai_Cay.app import run as run_face_app
     run_face_app()
+
+elif menu == "🔢 Nhận dạng chữ số":
+    from Nhan_Dang_Chu_So.app import run as run_face_app
+    run_face_app()
+
 
