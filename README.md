@@ -8,7 +8,7 @@
 
 ---
 
-### ✅ Kết quả mong muốn sau khi sửa:
+### ✅ Kết quả:
 
 ---
 
