@@ -1,6 +1,7 @@
 # 🧠 ImageProcessing App
 
 Ứng dụng xử lý ảnh số sử dụng Streamlit, bao gồm các chức năng:
+- 🧮 Giải phương trình bậc 2
 - 🎭 Nhận diện khuôn mặt
 - 👁️ Nhận dạng đối tượng với YOLOv8
 - 🍎 Nhận dạng trái cây
