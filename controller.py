@@ -7,19 +7,22 @@ menu = st.sidebar.selectbox(
     "Chọn một chức năng để bắt đầu:",
     [
         "🎭 Nhận diện khuôn mặt",
-        "🍎 Nhận dạng đối tượng (YOLOv8)",
-        "🧪 Xử lý ảnh số"
+        "👁️ Nhận dạng đối tượng (YOLOv8)",
+        "🍎 Nhận dạng trái cây"
     ]
 )
 
 st.title("🧠 Ứng dụng Xử lý Ảnh Số")
 
 if menu == "🎭 Nhận diện khuôn mặt":
-    from face_recognition_app.app import run as run_face_app
+    from Nhan_Dang_Khuon_Mat.app import run as run_face_app
     run_face_app()
 
-elif menu == "🍎 Nhận dạng đối tượng (YOLOv8)":
-    st.info("👉 Bạn đã chọn: Nhận dạng đối tượng (YOLOv8)")
+elif menu == "👁️ Nhận dạng đối tượng (YOLOv8)":
+    from Nhan_Dang_Doi_Tuong.app import run as run_face_app
+    run_face_app()
 
-elif menu == "🧪 Xử lý ảnh số":
-    st.info("👉 Bạn đã chọn: Xử lý ảnh số")
+elif menu == "🍎 Nhận dạng trái cây":
+    from Nhan_Dang_Trai_Cay.app import run as run_face_app
+    run_face_app()
+
