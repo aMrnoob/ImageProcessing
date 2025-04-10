@@ -8,14 +8,36 @@
 
 ---
 
+### ✅ Kết quả:
+
+---
+
 ## 🚀 Cài đặt
 
-### 1. Cài thư viện cần thiết:
-```bash
+### 1. Yêu cầu:
+```
+python < 3.12
+
+
+```
+### 2. Cài thư viện cần thiết:
+```
 pip install -r requirements.txt
 
 
-
-### 2. Chạy ứng dụng:
-```bash
+```
+### 3. Chạy ứng dụng:
+```
 streamlit run controller.py
+
+
+```
+
+
+
+
+
+
+
+
+
