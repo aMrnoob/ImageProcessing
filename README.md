@@ -14,17 +14,25 @@
 
 ## 🚀 Cài đặt
 
-### 1. Cài thư viện cần thiết:
+### 1. Yêu cầu:
+```
+python < 3.12
+
+
+```
+### 2. Cài thư viện cần thiết:
 ```
 pip install -r requirements.txt
 
 
 ```
-### 2. Chạy ứng dụng:
+### 3. Chạy ứng dụng:
 ```
 streamlit run controller.py
 
 ```
+
+
 
 
 
