@@ -1,0 +1,6 @@
+streamlit
+Pillow
+opencv-python
+tensorflow==2.13.0
+ultralytics
+onnxruntime-gpu
