@@ -1,7 +1,7 @@
 ## 👨‍🏫 Giảng viên phụ trách  
-**Thầy:** Trần Tiến Đức  
-**Bộ môn:** Xử lý ảnh số  
-**Trường:** Đại học Sư phạm Kỹ thuật Thành phố Hồ Chí Minh  
+- Thầy:** Trần Tiến Đức
+- Bộ môn:** Xử lý ảnh số
+- Trường:** Đại học Sư phạm Kỹ thuật Thành phố Hồ Chí Minh  
 
 ---
 
