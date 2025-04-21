@@ -74,19 +74,21 @@ class Inference:
 
     def web_ui(self):
         """Sets up the Streamlit web interface with custom HTML elements."""
+        # Set the page config first
+        self.st.set_page_config(page_title="Ultralytics Streamlit App", layout="wide")
+    
         menu_style_cfg = """<style>MainMenu {visibility: hidden;}</style>"""  # Hide main menu style
-
+    
         # Main title of streamlit application
         main_title_cfg = """<div><h1 style="color:#FF64DA; text-align:center; font-size:40px; margin-top:-50px;
         font-family: 'Archivo', sans-serif; margin-bottom:20px;">Ultralytics YOLO Streamlit Application</h1></div>"""
-
+    
         # Subtitle of streamlit application
         sub_title_cfg = """<div><h4 style="color:#042AFF; text-align:center; font-family: 'Archivo', sans-serif; 
         margin-top:-15px; margin-bottom:50px;">Experience real-time object detection on your webcam with the power 
         of Ultralytics YOLO! 🚀</h4></div>"""
-
+    
         # Set html page configuration and append custom HTML
-        self.st.set_page_config(page_title="Ultralytics Streamlit App", layout="wide")
         self.st.markdown(menu_style_cfg, unsafe_allow_html=True)
         self.st.markdown(main_title_cfg, unsafe_allow_html=True)
         self.st.markdown(sub_title_cfg, unsafe_allow_html=True)
