@@ -2,6 +2,7 @@ import io
 from typing import Any
 
 import cv2
+import mediapipe as mp
 from ultralytics import YOLO
 from ultralytics.utils import LOGGER
 from ultralytics.utils.checks import check_requirements
@@ -31,6 +32,11 @@ class Inference:
             self.model_path = self.temp_dict["model"]
 
         LOGGER.info(f"Ultralytics Solutions: ✅ {self.temp_dict}")
+
+        # Khởi tạo MediaPipe cho nhận diện khuôn mặt
+        self.mp_face_detection = mp.solutions.face_detection
+        self.face_detection = self.mp_face_detection.FaceDetection(min_detection_confidence=0.2)
+        self.mp_drawing = mp.solutions.drawing_utils
 
     def web_ui(self):
         menu_style_cfg = """<style>MainMenu {visibility: hidden;}</style>"""
@@ -98,6 +104,8 @@ class Inference:
 
         if self.st.sidebar.button("Start"):
             stop_button = self.st.button("Stop")
+
+            # Dùng MediaPipe để mở webcam
             cap = cv2.VideoCapture(0)
             if not cap.isOpened():
                 self.st.error("Could not open webcam or video source.")
@@ -109,6 +117,15 @@ class Inference:
                     self.st.warning("Failed to read frame from webcam. Please verify the webcam is connected properly.")
                     break
 
+                # Xử lý khuôn mặt với MediaPipe (nếu cần)
+                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                results = self.face_detection.process(frame_rgb)
+
+                if results.detections:
+                    for detection in results.detections:
+                        self.mp_drawing.draw_detection(frame, detection)
+
+                # Nếu bật tracking, chạy model với tracking
                 if self.enable_trk == "Yes":
                     results = self.model.track(
                         frame, conf=self.conf, iou=self.iou, classes=self.selected_ind, persist=True
