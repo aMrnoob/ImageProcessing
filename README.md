@@ -1,3 +1,9 @@
+## 👨‍🏫 Giảng viên phụ trách
+
+**Trần Tiến Đức**  
+Bộ môn Xử lý ảnh số  
+Trường Đại học Đại học sư phạm kỹ thuật thành phố Hồ Chí Minh 
+
 # 🧠 ImageProcessing App
 
 Ứng dụng xử lý ảnh số sử dụng Streamlit, bao gồm các chức năng:
