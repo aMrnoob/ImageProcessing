@@ -6,6 +6,11 @@
 - 👁️ Nhận dạng đối tượng với YOLOv8
 - 🍎 Nhận dạng trái cây
 - 🔢 Nhận dạng chữ số viết tay (MNIST)
+- 📝 Bài tập chương
+  + Chương 3: Các phép toán điểm ảnh
+    • Negative - Chuyển đổi ảnh thành âm bản
+  + Chương 4: Các phép toán không gian
+  + Chương 9: Nhận dạng đối tượng
 
 ---
 
