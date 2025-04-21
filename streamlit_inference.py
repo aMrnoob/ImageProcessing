@@ -2,8 +2,8 @@ import io
 from typing import Any
 
 import cv2
-from streamlit_webrtc import webrtc_streamer, VideoTransformerBase
-import av  # PyAV dùng bởi webrtc-streamer
+from streamlit_webrtc import webrtc_streamer, VideoProcessorBase
+import av  # PyAV used by webrtc-streamer
 from ultralytics import YOLO
 from ultralytics.utils import LOGGER
 from ultralytics.utils.checks import check_requirements
@@ -99,7 +99,7 @@ class Inference:
         if not isinstance(self.selected_ind, list):
             self.selected_ind = list(self.selected_ind)
 
-    class YOLOVideoTransformer(VideoTransformerBase):
+    class YOLOVideoProcessor(VideoProcessorBase):
         def __init__(self, model, enable_trk, conf, iou, selected_ind):
             self.model = model
             self.enable_trk = enable_trk
@@ -126,15 +126,14 @@ class Inference:
         if self.source == "webcam":
             webrtc_streamer(
                 key="yolo",
-                video_transformer_factory=lambda: self.YOLOVideoTransformer(
+                video_processor_factory=lambda: self.YOLOVideoProcessor(
                     self.model, self.enable_trk, self.conf, self.iou, self.selected_ind
                 ),
                 media_stream_constraints={"video": True, "audio": False},
                 async_processing=True,
             )
         elif self.source == "video":
-            self.st.warning("Video file processing chưa được hỗ trợ với WebRTC.")
-
+            self.st.warning("Video file processing is not yet supported with WebRTC.")
 
 if __name__ == "__main__":
     import sys
