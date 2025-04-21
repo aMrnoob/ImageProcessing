@@ -98,7 +98,7 @@ class Inference:
 
         if self.st.sidebar.button("Start"):
             stop_button = self.st.button("Stop")
-            cap = cv2.VideoCapture(2)
+            cap = cv2.VideoCapture(0)
             if not cap.isOpened():
                 self.st.error("Could not open webcam or video source.")
                 return
