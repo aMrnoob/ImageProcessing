@@ -9,3 +9,5 @@ pandas
 matplotlib
 pillow
 pyav
+mediapipe
+
