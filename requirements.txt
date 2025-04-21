@@ -3,5 +3,7 @@ opencv-python
 numpy
 Pillow
 matplotlib
+tensorflow
+onnxruntime
 ultralytics
 streamlit-webrtc
