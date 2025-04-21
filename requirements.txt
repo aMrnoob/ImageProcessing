@@ -1,10 +1,7 @@
-streamlit
+streamlit>=1.29.0
 opencv-python
 numpy
 Pillow
 matplotlib
-tensorflow
-onnxruntime
 ultralytics
 streamlit-webrtc
-
