@@ -21,7 +21,7 @@ class Inference:
         self.iou = 0.45
         self.org_frame = None
         self.ann_frame = None
-        self.vid_file_name = 1
+        self.vid_file_name = 2
         self.selected_ind = []
         self.model = None
 
