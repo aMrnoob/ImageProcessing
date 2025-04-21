@@ -1,13 +1,14 @@
 import io
 from typing import Any
-
 import cv2
-from streamlit_webrtc import webrtc_streamer, VideoProcessorBase
-import av  # PyAV used by webrtc-streamer
+from streamlit_webrtc import webrtc_streamer, VideoTransformerBase
+import av  # PyAV dùng bởi webrtc-streamer
 from ultralytics import YOLO
 from ultralytics.utils import LOGGER
 from ultralytics.utils.checks import check_requirements
 from ultralytics.utils.downloads import GITHUB_ASSETS_STEMS
+import asyncio
+import streamlit as st
 
 
 class Inference:
@@ -17,7 +18,6 @@ class Inference:
         Initialize the Inference class, checking Streamlit requirements and setting up the model path.
         """
         check_requirements("streamlit>=1.29.0")
-        import streamlit as st
 
         self.st = st
         self.source = None
@@ -99,7 +99,7 @@ class Inference:
         if not isinstance(self.selected_ind, list):
             self.selected_ind = list(self.selected_ind)
 
-    class YOLOVideoProcessor(VideoProcessorBase):
+    class YOLOVideoTransformer(VideoTransformerBase):
         def __init__(self, model, enable_trk, conf, iou, selected_ind):
             self.model = model
             self.enable_trk = enable_trk
@@ -126,18 +126,18 @@ class Inference:
         if self.source == "webcam":
             webrtc_streamer(
                 key="yolo",
-                video_processor_factory=lambda: self.YOLOVideoProcessor(
+                video_processor_factory=lambda: self.YOLOVideoTransformer(
                     self.model, self.enable_trk, self.conf, self.iou, self.selected_ind
                 ),
                 media_stream_constraints={"video": True, "audio": False},
-                async_processing=True,
+                async_processing=False,  # Tắt async_processing thử
             )
         elif self.source == "video":
-            self.st.warning("Video file processing is not yet supported with WebRTC.")
+            self.st.warning("Video file processing chưa được hỗ trợ với WebRTC.")
 
+# Chạy ứng dụng
 if __name__ == "__main__":
-    import sys
-
-    args = len(sys.argv)
-    model = sys.argv[1] if args > 1 else None
-    Inference(model=model).inference()
+    try:
+        asyncio.run(Inference().inference())
+    except Exception as e:
+        print(f"Error: {e}")
