@@ -5,7 +5,7 @@ Bộ môn: Xử lý ảnh số
 Trường Đại học Đại học sư phạm kỹ thuật thành phố Hồ Chí Minh 
 
 **Thành viên nhóm gồm:**  
-Tô Hữu Đức    - 22110311
+Tô Hữu Đức    - 22110311 
 Đỗ Văn Thường - 22110432
 
 # 🧠 ImageProcessing App
