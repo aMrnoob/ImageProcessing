@@ -84,16 +84,19 @@ class Inference:
             annotated_img = results[0].plot()
             return av.VideoFrame.from_ndarray(annotated_img, format="bgr24")
 
-    def webcam_detection(self):
-        self.st.info("Bật camera để bắt đầu nhận diện gương mặt.")
-        webrtc_streamer(
-            key="face-detect",
-            video_transformer_factory=lambda: self.YOLOTransformer(
-                self.model, self.enable_trk, self.conf, self.iou, self.selected_ind
-            ),
-            media_stream_constraints={"video": True, "audio": False},
-            async_processing=True,
-        )
+       def webcam_detection(self):
+         self.st.info("Bật camera để bắt đầu nhận diện gương mặt.")
+         webrtc_streamer(
+             key="face-detect",
+             video_transformer_factory=lambda: self.YOLOTransformer(
+                 self.model, self.enable_trk, self.conf, self.iou, self.selected_ind
+             ),
+             media_stream_constraints={"video": True, "audio": False},
+             async_processing=True,
+             video_frame_size=640,  # Điều chỉnh kích thước frame
+             use_thread=True  # Sử dụng threading nếu cần thiết
+         )
+
 
     def inference(self):
         self.web_ui()
