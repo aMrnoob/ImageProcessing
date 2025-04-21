@@ -1,11 +1,8 @@
-torch
-torchvision
-ultralytics
+python==3.10.12
+torch==2.1.0
+torchvision==0.16.0
+ultralytics==8.1.15
 opencv-python-headless
 streamlit>=1.29.0
 streamlit-webrtc==0.47.7
-numpy
-pandas
-matplotlib
-pillow
-pyav
+pyav==10.0.0
