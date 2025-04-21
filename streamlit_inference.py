@@ -7,7 +7,6 @@ from ultralytics import YOLO
 from ultralytics.utils import LOGGER
 from ultralytics.utils.checks import check_requirements
 from ultralytics.utils.downloads import GITHUB_ASSETS_STEMS
-import asyncio
 import streamlit as st
 
 
@@ -135,9 +134,6 @@ class Inference:
         elif self.source == "video":
             self.st.warning("Video file processing chưa được hỗ trợ với WebRTC.")
 
-# Chạy ứng dụng
+# Chạy ứng dụng trực tiếp mà không cần vòng lặp asyncio
 if __name__ == "__main__":
-    try:
-        asyncio.run(Inference().inference())
-    except Exception as e:
-        print(f"Error: {e}")
+    Inference().inference()
