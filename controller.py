@@ -10,7 +10,8 @@ menu = st.sidebar.selectbox(
         "🎭 Nhận diện khuôn mặt",
         "👁️ Nhận dạng đối tượng (YOLOv8)",
         "🍎 Nhận dạng trái cây",
-        "🔢 Nhận dạng chữ số"
+        "🔢 Nhận dạng chữ số",
+        "📝 Bài tập chương"
     ]
 )
 
@@ -34,6 +35,27 @@ elif menu == "🍎 Nhận dạng trái cây":
 
 elif menu == "🔢 Nhận dạng chữ số":
     from Nhan_Dang_Chu_So.app import run as Nhan_Dang_Chu_So_app
-    Nhan_Dang_Chu_So_app
+    Nhan_Dang_Chu_So_app()
 
-
+elif menu == "📝 Bài tập chương":
+    st.sidebar.subheader("📖 Chọn chương")
+    chapter = st.sidebar.selectbox(
+        "Chọn chương bạn muốn thực hành:",
+        [
+            "Chương 3: Các phép toán điểm ảnh",
+            "Chương 4: Các phép toán không gian",
+            "Chương 9: Nhận dạng đối tượng"
+        ]
+    )
+    
+    if chapter == "Chương 3: Các phép toán điểm ảnh":
+        from Bai_Tap_Chuong.Chuong_03 import run as Chuong_3_app
+        Chuong_3_app()
+        
+    elif chapter == "Chương 4: Các phép toán không gian":
+        from Bai_Tap_Chuong.Chuong_04 import run as Chuong_4_app
+        Chuong_4_app()
+        
+    elif chapter == "Chương 9: Nhận dạng đối tượng":
+        from Bai_Tap_Chuong.Chuong_09 import run as Chuong_9_app
+        Chuong_9_app()

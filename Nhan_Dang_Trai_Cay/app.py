@@ -84,7 +84,7 @@ def run():
         frame = frame[:, :, [2, 1, 0]]  
 
         st.image(image)
-        if st.button('Predict'):
+        if st.button('Nhận dạng'):
             global classes
             classes = ['Buoi', 'Cam', 'Coc', 'Khe', 'Mit']
             detections = pre_process(frame, st.session_state["Net"])
