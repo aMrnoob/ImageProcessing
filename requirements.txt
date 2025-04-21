@@ -7,3 +7,12 @@ tensorflow
 onnxruntime
 ultralytics
 streamlit-webrtc
+streamlit
+opencv-python
+numpy
+Pillow
+matplotlib
+tensorflow
+onnxruntime
+ultralytics
+
