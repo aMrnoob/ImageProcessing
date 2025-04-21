@@ -6,3 +6,4 @@ matplotlib
 tensorflow
 onnxruntime
 ultralytics
+streamlit-webrtc
