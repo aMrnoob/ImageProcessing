@@ -21,7 +21,7 @@ class Inference:
         self.iou = 0.45
         self.org_frame = None
         self.ann_frame = None
-        self.vid_file_name = 2
+        self.vid_file_name = None
         self.selected_ind = []
         self.model = None
 
@@ -98,7 +98,7 @@ class Inference:
 
         if self.st.sidebar.button("Start"):
             stop_button = self.st.button("Stop")
-            cap = cv2.VideoCapture(self.vid_file_name)
+            cap = cv2.VideoCapture(1)
             if not cap.isOpened():
                 self.st.error("Could not open webcam or video source.")
                 return
