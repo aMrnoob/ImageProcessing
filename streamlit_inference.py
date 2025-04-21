@@ -1,11 +1,12 @@
 import io
 from typing import Any
-import cv2
-import numpy as np
+import av
 from ultralytics import YOLO
 from ultralytics.utils import LOGGER
 from ultralytics.utils.checks import check_requirements
 from ultralytics.utils.downloads import GITHUB_ASSETS_STEMS
+from streamlit_webrtc import webrtc_streamer, VideoTransformerBase
+
 
 class Inference:
 
@@ -62,34 +63,37 @@ class Inference:
         selected_classes = self.st.sidebar.multiselect("Classes", class_names, default=class_names[:3])
         self.selected_ind = [class_names.index(option) for option in selected_classes]
 
+    class YOLOTransformer(VideoTransformerBase):
+        def __init__(self, model, enable_trk, conf, iou, selected_ind):
+            self.model = model
+            self.enable_trk = enable_trk
+            self.conf = conf
+            self.iou = iou
+            self.selected_ind = selected_ind
+
+        def transform(self, frame: av.VideoFrame) -> av.VideoFrame:
+            import cv2
+            import numpy as np
+
+            img = frame.to_ndarray(format="bgr24")
+            if self.enable_trk == "Yes":
+                results = self.model.track(img, conf=self.conf, iou=self.iou,
+                                           classes=self.selected_ind, persist=True)
+            else:
+                results = self.model(img, conf=self.conf, iou=self.iou, classes=self.selected_ind)
+            annotated_img = results[0].plot()
+            return av.VideoFrame.from_ndarray(annotated_img, format="bgr24")
+
     def webcam_detection(self):
         self.st.info("Bật camera để bắt đầu nhận diện gương mặt.")
-        start_button = self.st.button("Bắt đầu")
-
-        if start_button:
-            cap = cv2.VideoCapture(0)
-            if not cap.isOpened():
-                self.st.error("Không thể mở webcam.")
-                return
-
-            FRAME_WINDOW = self.st.image([])
-
-            while True:
-                ret, frame = cap.read()
-                if not ret:
-                    self.st.warning("Không lấy được khung hình từ webcam.")
-                    break
-
-                if self.enable_trk == "Yes":
-                    results = self.model.track(frame, conf=self.conf, iou=self.iou,
-                                               classes=self.selected_ind, persist=True)
-                else:
-                    results = self.model(frame, conf=self.conf, iou=self.iou, classes=self.selected_ind)
-
-                annotated_img = results[0].plot()
-                FRAME_WINDOW.image(annotated_img, channels="BGR")
-
-            cap.release()
+        webrtc_streamer(
+            key="face-detect",
+            video_transformer_factory=lambda: self.YOLOTransformer(
+                self.model, self.enable_trk, self.conf, self.iou, self.selected_ind
+            ),
+            media_stream_constraints={"video": True, "audio": False},
+            async_processing=True,
+        )
 
     def inference(self):
         self.web_ui()
