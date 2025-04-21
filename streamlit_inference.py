@@ -1,9 +1,8 @@
 import io
 from typing import Any
-
 import cv2
 from streamlit_webrtc import webrtc_streamer, VideoTransformerBase
-import av  # PyAV dùng bởi webrtc-streamer
+import av
 from ultralytics import YOLO
 from ultralytics.utils import LOGGER
 from ultralytics.utils.checks import check_requirements
@@ -13,9 +12,6 @@ from ultralytics.utils.downloads import GITHUB_ASSETS_STEMS
 class Inference:
 
     def __init__(self, **kwargs: Any):
-        """
-        Initialize the Inference class, checking Streamlit requirements and setting up the model path.
-        """
         check_requirements("streamlit>=1.29.0")
         import streamlit as st
 
@@ -31,14 +27,11 @@ class Inference:
         self.model = None
 
         self.temp_dict = {"model": None, **kwargs}
-        self.model_path = None
-        if self.temp_dict["model"] is not None:
-            self.model_path = self.temp_dict["model"]
+        self.model_path = self.temp_dict["model"]
 
         LOGGER.info(f"Ultralytics Solutions: ✅ {self.temp_dict}")
 
     def web_ui(self):
-        """Sets up the Streamlit web interface with custom HTML elements."""
         menu_style_cfg = """<style>MainMenu {visibility: hidden;}</style>"""
         main_title_cfg = """<div><h1 style="color:#FF64DA; text-align:center; font-size:40px; margin-top:-50px;
         font-family: 'Archivo', sans-serif; margin-bottom:20px;">Ultralytics YOLO Streamlit Application</h1></div>"""
@@ -52,7 +45,6 @@ class Inference:
         self.st.markdown(sub_title_cfg, unsafe_allow_html=True)
 
     def sidebar(self):
-        """Configure the Streamlit sidebar for model and inference settings."""
         with self.st.sidebar:
             logo = "https://raw.githubusercontent.com/ultralytics/assets/main/logo/Ultralytics_Logotype_Original.svg"
             self.st.image(logo, width=250)
@@ -68,7 +60,6 @@ class Inference:
         self.ann_frame = col2.empty()
 
     def source_upload(self):
-        """Handle video file uploads through the Streamlit interface."""
         self.vid_file_name = ""
         if self.source == "video":
             vid_file = self.st.sidebar.file_uploader("Upload Video File", type=["mp4", "mov", "avi", "mkv"])
@@ -81,7 +72,6 @@ class Inference:
             self.vid_file_name = 0
 
     def configure(self):
-        """Configure the model and load selected classes for inference."""
         available_models = [x.replace("yolo", "YOLO") for x in GITHUB_ASSETS_STEMS if x.startswith("yolo11")]
         if self.model_path:
             available_models.insert(0, self.model_path.split(".pt")[0])
@@ -94,10 +84,10 @@ class Inference:
         self.st.success("Model loaded successfully!")
 
         selected_classes = self.st.sidebar.multiselect("Classes", class_names, default=class_names[:3])
-        self.selected_ind = [class_names.index(option) for option in selected_classes]
-
-        if not isinstance(self.selected_ind, list):
-            self.selected_ind = list(self.selected_ind)
+        if selected_classes:
+            self.selected_ind = [class_names.index(option) for option in selected_classes]
+        else:
+            self.selected_ind = None  # Detect all if none selected
 
     class YOLOVideoTransformer(VideoTransformerBase):
         def __init__(self, model, enable_trk, conf, iou, selected_ind):
@@ -109,15 +99,19 @@ class Inference:
 
         def transform(self, frame):
             img = frame.to_ndarray(format="bgr24")
+
+            # Auto detect all classes if None
+            classes = self.selected_ind if self.selected_ind else None
+
             if self.enable_trk == "Yes":
-                results = self.model.track(img, conf=self.conf, iou=self.iou, classes=self.selected_ind, persist=True)
+                results = self.model.track(img, conf=self.conf, iou=self.iou, classes=classes, persist=True)
             else:
-                results = self.model(img, conf=self.conf, iou=self.iou, classes=self.selected_ind)
+                results = self.model(img, conf=self.conf, iou=self.iou, classes=classes)
+
             annotated_img = results[0].plot()
             return annotated_img
 
     def inference(self):
-        """Main inference runner."""
         self.web_ui()
         self.sidebar()
         self.source_upload()
@@ -138,7 +132,6 @@ class Inference:
 
 if __name__ == "__main__":
     import sys
-
     args = len(sys.argv)
     model = sys.argv[1] if args > 1 else None
     Inference(model=model).inference()
