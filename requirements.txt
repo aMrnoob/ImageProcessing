@@ -9,4 +9,3 @@ pandas
 matplotlib
 pillow
 pyav
-av==10.0.0  # Fix version cho pyav để tránh lỗi tương thích
