@@ -44,7 +44,7 @@ elif menu == "📝 Bài tập chương":
         [
             "Chương 3: Các phép toán điểm ảnh",
             "Chương 4: Các phép toán không gian",
-            "Chương 9: Nhận dạng đối tượng"
+            "Chương 9: Xử lý ảnh hình thái"
         ]
     )
     
@@ -56,6 +56,6 @@ elif menu == "📝 Bài tập chương":
         from Bai_Tap_Chuong.Chuong_04 import run as Chuong_4_app
         Chuong_4_app()
         
-    elif chapter == "Chương 9: Nhận dạng đối tượng":
+    elif chapter == "Chương 9: Xử lý ảnh hình thái":
         from Bai_Tap_Chuong.Chuong_09 import run as Chuong_9_app
         Chuong_9_app()
