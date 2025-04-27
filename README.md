@@ -17,6 +17,7 @@
 - 👁️ Nhận dạng đối tượng với YOLOv8
 - 🍎 Nhận dạng trái cây
 - 🔢 Nhận dạng chữ số viết tay (MNIST)
+- 🎨 Nhận dạng màu sắc
 - 📝 Bài tập chương
   + Chương 3: Các phép toán điểm ảnh
     + 🎞 Negative - Chuyển đổi ảnh thành âm bản
