@@ -3,94 +3,166 @@ import numpy as np
 from PIL import Image
 import cv2
 
-def run():
-    st.title('Nhận dạng trái cây')
+CONFIG = {
+    "INPUT_WIDTH": 640,
+    "INPUT_HEIGHT": 640,
+    "SCORE_THRESHOLD": 0.5,
+    "NMS_THRESHOLD": 0.4,
+    "CONFIDENCE_THRESHOLD": 0.5,
+    "FONT_FACE": cv2.FONT_HERSHEY_SIMPLEX,
+    "FONT_SCALE": 0.5,
+    "THICKNESS": 1,
+    "COLORS": {
+        "YELLOW": (0, 255, 255),
+        "GREEN": (0, 255, 0),
+        "BLACK": (0, 0, 0),
+        "RED": (0, 0, 255),
+        "WHITE": (255, 255, 255)
+    },
+    "MODEL_PATH": "Nhan_Dang_Trai_Cay/model/fruit.onnx"
+}
 
+def initialize_session_state():
     try:
         if st.session_state["LoadModel"] == True:
-            print('Đã load model rồi')
+            print('✅ Đã load model rồi')
     except:
         st.session_state["LoadModel"] = True
-        st.session_state["Net"] = cv2.dnn.readNet("Nhan_Dang_Trai_Cay/model/fruit.onnx")
-        print(st.session_state["LoadModel"])
-        print('Load model lần đầu') 
+        st.session_state["Net"] = cv2.dnn.readNet(CONFIG["MODEL_PATH"])
+        print('🔁 Load model lần đầu')
+    st.session_state["Net"].setPreferableBackend(0)
+    st.session_state["Net"].setPreferableTarget(0)
 
-    INPUT_WIDTH = 640
-    INPUT_HEIGHT = 640
-    SCORE_THRESHOLD = 0.5
-    NMS_THRESHOLD = 0.45
-    CONFIDENCE_THRESHOLD = 0.45
+def load_classes():
+    filename_classes = 'Nhan_Dang_Trai_Cay/fruit_detection.txt'
+    classes = None
+    if filename_classes:
+        with open(filename_classes, 'rt') as f:
+            classes = f.read().rstrip('\n').split('\n')
+    return classes
 
-    FONT_FACE = cv2.FONT_HERSHEY_SIMPLEX
-    FONT_SCALE = 0.7
-    THICKNESS = 1
+def post_process(frame, outs):
+    frameHeight = frame.shape[0]
+    frameWidth = frame.shape[1]
+    classes = load_classes()
+    
+    def drawPred(classId, conf, left, top, right, bottom):
+        cv2.rectangle(frame, (left, top), (right, bottom), CONFIG["COLORS"]["GREEN"])
+        label = '%.2f' % conf
+        if classes:
+            assert(classId < len(classes))
+            label = '%s: %s' % (classes[classId], label)
+        labelSize, baseLine = cv2.getTextSize(label, CONFIG["FONT_FACE"], CONFIG["FONT_SCALE"], CONFIG["THICKNESS"])
+        top = max(top, labelSize[1])
+        cv2.rectangle(frame, (left, top - labelSize[1]), (left + labelSize[0], top + baseLine), 
+                     CONFIG["COLORS"]["WHITE"], cv2.FILLED)
+        cv2.putText(frame, label, (left, top), CONFIG["FONT_FACE"], CONFIG["FONT_SCALE"], 
+                   CONFIG["COLORS"]["BLACK"], CONFIG["THICKNESS"])
 
-    BLUE   = (255,178,50)
-    YELLOW = (0,255,255)
+    layerNames = st.session_state["Net"].getLayerNames()
+    lastLayerId = st.session_state["Net"].getLayerId(layerNames[-1])
+    lastLayer = st.session_state["Net"].getLayer(lastLayerId)
+    postprocessing = 'yolov8'
+    background_label_id = -1
 
-    def draw_label(im, label, x, y):
-        text_size = cv2.getTextSize(label, FONT_FACE, FONT_SCALE, THICKNESS)
-        dim, baseline = text_size[0], text_size[1]
-        cv2.rectangle(im, (x,y), (x + dim[0], y + dim[1] + baseline), (0,0,0), cv2.FILLED);
-        cv2.putText(im, label, (x, y + dim[1]), FONT_FACE, FONT_SCALE, YELLOW, THICKNESS, cv2.LINE_AA)
+    classIds = []
+    confidences = []
+    boxes = []
+    
+    if lastLayer.type == 'Region' or postprocessing == 'yolov8':
+        if postprocessing == 'yolov8':
+            box_scale_w = frameWidth / CONFIG["INPUT_WIDTH"]
+            box_scale_h = frameHeight / CONFIG["INPUT_HEIGHT"]
+        else:
+            box_scale_w = frameWidth
+            box_scale_h = frameHeight
 
-    def pre_process(input_image, net):
-        blob = cv2.dnn.blobFromImage(input_image, 1/255,  (INPUT_WIDTH, INPUT_HEIGHT), [0,0,0], 1, crop=False)
-        net.setInput(blob)
-        outputs = net.forward(net.getUnconnectedOutLayersNames())
-        return outputs
+        for out in outs:
+            if postprocessing == 'yolov8':
+                out = out[0].transpose(1, 0)
+            for detection in out:
+                scores = detection[4:]
+                if background_label_id >= 0:
+                    scores = np.delete(scores, background_label_id)
+                classId = np.argmax(scores)
+                confidence = scores[classId]
+                if confidence > CONFIG["CONFIDENCE_THRESHOLD"]:
+                    center_x = int(detection[0] * box_scale_w)
+                    center_y = int(detection[1] * box_scale_h)
+                    width = int(detection[2] * box_scale_w)
+                    height = int(detection[3] * box_scale_h)
+                    left = int(center_x - width / 2)
+                    top = int(center_y - height / 2)
+                    classIds.append(classId)
+                    confidences.append(float(confidence))
+                    boxes.append([left, top, width, height])
+    else:
+        print('Unknown output layer type: ' + lastLayer.type)
+        return
 
-    def post_process(input_image, outputs):
-        class_ids = []
-        confidences = []
-        boxes = []
+    outNames = st.session_state["Net"].getUnconnectedOutLayersNames()
+    if len(outNames) > 1 or (lastLayer.type == 'Region' or postprocessing == 'yolov8') and 0 != cv2.dnn.DNN_BACKEND_OPENCV:
+        indices = []
+        classIds = np.array(classIds)
+        boxes = np.array(boxes)
+        confidences = np.array(confidences)
+        unique_classes = set(classIds)
+        for cl in unique_classes:
+            class_indices = np.where(classIds == cl)[0]
+            conf = confidences[class_indices]
+            box = boxes[class_indices].tolist()
+            nms_indices = cv2.dnn.NMSBoxes(box, conf, CONFIG["CONFIDENCE_THRESHOLD"], CONFIG["NMS_THRESHOLD"])
+            indices.extend(class_indices[nms_indices])
+    else:
+        indices = np.arange(0, len(classIds))
 
-        rows = outputs[0].shape[1]
-        image_height, image_width = input_image.shape[:2]
-        x_factor = image_width / INPUT_WIDTH
-        y_factor =  image_height / INPUT_HEIGHT
+    for i in indices:
+        box = boxes[i]
+        left = box[0]
+        top = box[1]
+        width = box[2]
+        height = box[3]
+        drawPred(classIds[i], confidences[i], left, top, left + width, top + height)
+    
+    return frame
 
-        for r in range(rows):
-            row = outputs[0][0][r]
-            confidence = row[4]
-            if confidence >= CONFIDENCE_THRESHOLD:
-                classes_scores = row[5:]
-                class_id = np.argmax(classes_scores)
-                if (classes_scores[class_id] > SCORE_THRESHOLD):
-                    confidences.append(confidence)
-                    class_ids.append(class_id)
-                    cx, cy, w, h = row[0], row[1], row[2], row[3]
-                    left = int((cx - w/2) * x_factor)
-                    top = int((cy - h/2) * y_factor)
-                    width = int(w * x_factor)
-                    height = int(h * y_factor)
-                    box = np.array([left, top, width, height])
-                    boxes.append(box)
+def pre_process(input_image):
+    scale = 0.00392
+    mean = [0, 0, 0]
+    
+    frameHeight = input_image.shape[0]
+    frameWidth = input_image.shape[1]
+    inpWidth = CONFIG["INPUT_WIDTH"] 
+    inpHeight = CONFIG["INPUT_HEIGHT"]
+    blob = cv2.dnn.blobFromImage(input_image, size=(inpWidth, inpHeight), swapRB=True, ddepth=cv2.CV_8U)
+    st.session_state["Net"].setInput(blob, scalefactor=scale, mean=mean)
+    if st.session_state["Net"].getLayer(0).outputNameToIndex('im_info') != -1:
+        input_image = cv2.resize(input_image, (inpWidth, inpHeight))
+        st.session_state["Net"].setInput(np.array([[inpHeight, inpWidth, 1.6]], dtype=np.float32), 'im_info')
+    outNames = st.session_state["Net"].getUnconnectedOutLayersNames()
+    outs = st.session_state["Net"].forward(outNames)
+    return input_image, outs
 
-        indices = cv2.dnn.NMSBoxes(boxes, confidences, CONFIDENCE_THRESHOLD, NMS_THRESHOLD)
-        for i in indices:
-            box = boxes[i]
-            left, top, width, height = box
-            cv2.rectangle(input_image, (left, top), (left + width, top + height), BLUE, 3*THICKNESS)
-            label = "{}:{:.2f}".format(classes[class_ids[i]], confidences[i])
-            draw_label(input_image, label, left, top)
-        return input_image
+def process_image(uploaded_file):
+    image = Image.open(uploaded_file)
+    frame = np.array(image)
+    frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+    col1, col2 = st.columns([1,1])
+    with col1:
+        st.image(image, use_column_width=True)
+    if st.button('🚀 Nhận dạng'):
+        with st.spinner('Đang xử lý...'):
+            processed_frame, outs = pre_process(frame)
+            result_img = post_process(frame, outs)
+            color_converted = cv2.cvtColor(result_img, cv2.COLOR_BGR2RGB)
+            pil_image = Image.fromarray(color_converted)
+            with col2:
+                st.image(pil_image, use_column_width=True)
 
-    img_file_buffer = st.file_uploader("Upload an image", type=["bmp", "png", "jpg", "jpeg"])
-
+def run():
+    st.title('🍎 Nhận dạng trái cây')
+    st.markdown("Ứng dụng nhận dạng các loại trái cây bằng mô hình YOLOv8")
+    initialize_session_state()
+    img_file_buffer = st.file_uploader("📁 Tải ảnh lên", type=["bmp", "png", "jpg", "jpeg"])
     if img_file_buffer is not None:
-        image = Image.open(img_file_buffer)
-        frame = np.array(image)
-        frame = frame[:, :, [2, 1, 0]]  
-
-        st.image(image)
-        if st.button('Nhận dạng'):
-            global classes
-            classes = ['Buoi', 'Cam', 'Coc', 'Khe', 'Mit']
-            detections = pre_process(frame, st.session_state["Net"])
-            img = post_process(frame.copy(), detections)
-            t, _ = st.session_state["Net"].getPerfProfile()
-            label = 'Inference time: %.2f ms' % (t * 1000.0 /  cv2.getTickFrequency())
-            print(label)
-            cv2.putText(img, label, (20, 40), FONT_FACE, FONT_SCALE,  (0, 0, 255), THICKNESS, cv2.LINE_AA)
-            st.image(img)
+        process_image(img_file_buffer)
