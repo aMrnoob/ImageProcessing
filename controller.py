@@ -14,6 +14,7 @@ menu = st.sidebar.selectbox(
         "🎨 Nhận dạng màu sắc", 
         "🎭 Nhận dạng cảm xúc", 
         "🚗 Nhận dạng biển số xe", 
+        "🖐 Nhận dạng cử chỉ tay",
         "📝 Bài tập chương",
     ]
 )
@@ -51,6 +52,10 @@ elif menu == "🎭 Nhận dạng cảm xúc":
 elif menu == "🚗 Nhận dạng biển số xe":
     from Nhan_Dang_Bien_So_Xe.app import run as Nhan_Dang_Bien_So_Xe_app
     Nhan_Dang_Bien_So_Xe_app()
+
+elif menu == "🖐 Nhận dạng cử chỉ tay":  
+    from Nhan_Dang_Cu_Chi_Tay.app import run as Nhan_Dang_Cu_Chi_Tay_app
+    Nhan_Dang_Cu_Chi_Tay_app()
 
 elif menu == "📝 Bài tập chương":
     st.sidebar.subheader("📖 Chọn chương")
