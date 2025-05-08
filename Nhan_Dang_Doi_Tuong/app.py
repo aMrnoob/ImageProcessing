@@ -5,7 +5,7 @@ import numpy as np
 import cv2
 
 def run():
-    st.header("🍎 Nhận dạng đối tượng bằng YOLOv8")
+    st.header("🍎 Nhận dạng đối tượng")
 
     model_path = "Nhan_Dang_Doi_Tuong/model/yolov8n.pt"
     model = YOLO(model_path)

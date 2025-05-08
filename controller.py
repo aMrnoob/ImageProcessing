@@ -8,13 +8,15 @@ menu = st.sidebar.selectbox(
     [
         "🧮 Giải phương trình bậc 2",
         "🎭 Nhận diện khuôn mặt",
-        "👁️ Nhận dạng đối tượng (YOLOv8)",
+        "👁️ Nhận dạng đối tượng",
         "🍎 Nhận dạng trái cây",
         "🔢 Nhận dạng chữ số",
         "🎨 Nhận dạng màu sắc", 
         "🎭 Nhận dạng cảm xúc", 
         "🚗 Nhận dạng biển số xe", 
         "🖐 Nhận dạng cử chỉ tay",
+        "🚦 Nhận dạng biển báo đường bộ",
+        "♟️ Nhận dạng cờ tướng",
         "📝 Bài tập chương",
     ]
 )
@@ -29,7 +31,7 @@ elif menu == "🎭 Nhận diện khuôn mặt":
     from Nhan_Dang_Khuon_Mat.app import run as Nhan_Dang_Khuon_Mat_app
     Nhan_Dang_Khuon_Mat_app()
 
-elif menu == "👁️ Nhận dạng đối tượng (YOLOv8)":
+elif menu == "👁️ Nhận dạng đối tượng":
     from Nhan_Dang_Doi_Tuong.app import run as Nhan_Dang_Doi_Tuong__app
     Nhan_Dang_Doi_Tuong__app()
 
@@ -56,6 +58,14 @@ elif menu == "🚗 Nhận dạng biển số xe":
 elif menu == "🖐 Nhận dạng cử chỉ tay":  
     from Nhan_Dang_Cu_Chi_Tay.app import run as Nhan_Dang_Cu_Chi_Tay_app
     Nhan_Dang_Cu_Chi_Tay_app()
+
+elif menu == "🚦 Nhận dạng biển báo đường bộ":  
+    from Nhan_Dang_Bien_Bao.app import run as Nhan_Dang_Bien_Bao_app
+    Nhan_Dang_Bien_Bao_app()
+
+elif menu == "♟️ Nhận dạng cờ tướng":  
+    from Nhan_Dang_Co_Tuong.app import run as Nhan_Dang_Co_Tuong_app  
+    Nhan_Dang_Co_Tuong_app()
 
 elif menu == "📝 Bài tập chương":
     st.sidebar.subheader("📖 Chọn chương")

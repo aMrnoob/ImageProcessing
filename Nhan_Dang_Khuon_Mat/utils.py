@@ -9,7 +9,7 @@ import streamlit as st
 detector = YuNet(
     modelPath="Nhan_Dang_Khuon_Mat/model/face_detection_yunet_2023mar.onnx",
     inputSize=[640, 640],
-    confThreshold=0.6,
+    confThreshold=0.8,
     nmsThreshold=0.3,
     topK=5000,
     backendId=cv2.dnn.DNN_BACKEND_DEFAULT,
@@ -74,39 +74,47 @@ def get_embedding(face_tensor):
     return norm_emb
 
 def load_known_faces(folder="Nhan_Dang_Khuon_Mat/faces_recognized"):
-    """Load known faces from directory"""
+    """Load known faces from directory with person subfolders"""
     known = {}
     
     if not os.path.exists(folder):
         print(f"❌ Directory not found: {folder}")
         return known
-        
-    for file in os.listdir(folder):
-        if not file.lower().endswith(('.jpg', '.jpeg', '.png')):
-            continue
+    
+    # Get all subdirectories (each representing a person)
+    person_dirs = [d for d in os.listdir(folder) if os.path.isdir(os.path.join(folder, d))]
+    
+    if not person_dirs:
+        print(f"⚠️ No person directories found in {folder}")
+        # Fall back to original behavior - look for images directly in the folder
+        for file in os.listdir(folder):
+            if not file.lower().endswith(('.jpg', '.jpeg', '.png')):
+                continue
+                
+            name = os.path.splitext(file)[0]
+            img_path = os.path.join(folder, file)
+            process_face_image(img_path, name, known)
+    else:
+        # Process each person's directory
+        for person_name in person_dirs:
+            person_dir = os.path.join(folder, person_name)
+            print(f"Processing directory for {person_name}...")
             
-        name = os.path.splitext(file)[0]
-        img_path = os.path.join(folder, file)
-        img = cv2.imread(img_path)
-        
-        if img is None:
-            print(f"❌ Could not read image: {img_path}")
-            continue
-
-        boxes = detect_faces(img)
-        if len(boxes) != 1:
-            print(f"⚠️ Found {len(boxes)} faces in {file}, expected 1")
-            continue
-
-        face_tensor = preprocess_face(img, boxes[0], margin=0.1)
-        if face_tensor is None:
-            print(f"❌ Failed to preprocess face in {file}")
-            continue
+            # Get all image files in the person's directory
+            image_files = [f for f in os.listdir(person_dir) 
+                          if f.lower().endswith(('.jpg', '.jpeg', '.png'))]
             
-        emb = get_embedding(face_tensor)
-        if emb is not None:
-            known[name] = emb
-            
+            if not image_files:
+                print(f"⚠️ No images found for {person_name}")
+                continue
+                
+            # Process each image for this person
+            for i, file in enumerate(image_files):
+                img_path = os.path.join(person_dir, file)
+                # Use person_name as the base name and add index if multiple images
+                face_name = f"{person_name}_{i}" if len(image_files) > 1 else person_name
+                process_face_image(img_path, face_name, known)
+    
     print(f"✅ Loaded {len(known)} known faces")
     return known
 
@@ -116,7 +124,7 @@ def compute_similarity(emb1, emb2):
     distance = 1.0 - similarity
     return distance
 
-def recognize_faces(img, known_faces, threshold=0.4):
+def recognize_faces(img, known_faces, threshold=0.2):
     """Detect and recognize faces in an image"""
     if img is None or img.size == 0 or not known_faces:
         return img.copy() if img is not None and img.size > 0 else None
@@ -153,7 +161,35 @@ def recognize_faces(img, known_faces, threshold=0.4):
         
     return annotated
 
-def recognize_faces_video(video_path, known_faces, threshold=0.4):
+def process_face_image(img_path, name, known_dict):
+    """Process a single face image and add its embedding to the known_dict"""
+    img = cv2.imread(img_path)
+    
+    if img is None:
+        print(f"❌ Could not read image: {img_path}")
+        return
+
+    boxes = detect_faces(img)
+    if not boxes:
+        print(f"❌ No faces detected in {img_path}")
+        return
+        
+    if len(boxes) > 1:
+        print(f"⚠️ Found {len(boxes)} faces in {img_path}, using the first one")
+    
+    face_tensor = preprocess_face(img, boxes[0], margin=0.1)
+    if face_tensor is None:
+        print(f"❌ Failed to preprocess face in {img_path}")
+        return
+        
+    emb = get_embedding(face_tensor)
+    if emb is not None:
+        known_dict[name] = emb
+        print(f"  ✓ Added face embedding for {name}")
+    else:
+        print(f"❌ Failed to get embedding for {img_path}")
+
+def recognize_faces_video(video_path, known_faces, threshold=0.2):
     """Process video and recognize faces in each frame"""
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
