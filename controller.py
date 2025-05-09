@@ -142,7 +142,7 @@ def add_custom_css():
             background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
             color: white;
             border-radius: 15px;
-            font-size: 12px;
+            font-size: 15px;
             margin-right: 5px;
         }
         
@@ -196,7 +196,7 @@ with col2:
             🏫 <b>Trường:</b> Đại học Sư phạm Kỹ thuật TP. Hồ Chí Minh
         </div>
         <br>
-        <div style='font-size: 18px; line-height: 1.6;'>
+        <div style='font-size: 22px; line-height: 1.9;'>
             👥 <b>Thành viên nhóm:</b><br>
             <div class="badge">▪️ Tô Hữu Đức – 22110311</div>
             <div class="badge">▪️ Đỗ Văn Thường – 22110432</div>
