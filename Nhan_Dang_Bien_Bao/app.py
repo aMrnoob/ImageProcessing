@@ -32,7 +32,7 @@ def run():
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
         
         with col1:
-            st.image(image, caption="Ảnh đầu vào", use_column_width=True)
+            st.image(image, caption="Ảnh đầu vào", use_container_width=True)
         
         if st.button("Nhận dạng"):
             frameHeight = frame.shape[0]

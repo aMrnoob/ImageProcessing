@@ -17,13 +17,13 @@ def run():
         file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
         image = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
         
-        st.image(image, channels="BGR", use_column_width=True, caption="Ảnh gốc")
+        st.image(image, channels="BGR", use_container_width=True, caption="Ảnh gốc")
         
         if st.button("Phát hiện biển số", key="detect_uploaded"):
             with st.spinner("Đang xử lý ảnh..."):
                 result_image = detector.detect_plates(image)
                 
-                st.image(result_image, channels="BGR", use_column_width=True, caption="Kết quả phát hiện")
+                st.image(result_image, channels="BGR", use_container_width=True, caption="Kết quả phát hiện")
     
     st.markdown("---")
     st.markdown(
