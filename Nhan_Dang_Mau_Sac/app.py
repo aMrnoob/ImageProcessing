@@ -2,7 +2,6 @@ import cv2
 import streamlit as st
 import pandas as pd
 
-# Đọc file CSV chứa thông tin màu sắc
 index = ["color", "color_name", "hex", "R", "G", "B"]
 csv = pd.read_csv(r"Nhan_Dang_Mau_Sac\colors.csv", names=index, header=None)
 
@@ -11,10 +10,9 @@ def run():
 
     st.write("Bật camera và đặt vật thể vào giữa màn hình để nhận dạng màu sắc.")
     
-    loadmausac()
+    loadColor()
 
-def loadmausac():
-    # Bắt đầu camera
+def loadColor():
     camera_on = st.checkbox("📷 Bật/Tắt Camera")
     if camera_on:
         cap = cv2.VideoCapture(0)

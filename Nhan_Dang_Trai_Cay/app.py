@@ -149,7 +149,7 @@ def process_image(uploaded_file):
     frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
     col1, col2 = st.columns([1,1])
     with col1:
-        st.image(image, use_column_width=True)
+        st.image(image, use_container_width=True)
     if st.button('🚀 Nhận dạng'):
         with st.spinner('Đang xử lý...'):
             processed_frame, outs = pre_process(frame)
@@ -157,7 +157,7 @@ def process_image(uploaded_file):
             color_converted = cv2.cvtColor(result_img, cv2.COLOR_BGR2RGB)
             pil_image = Image.fromarray(color_converted)
             with col2:
-                st.image(pil_image, use_column_width=True)
+                st.image(pil_image, use_container_width=True)
 
 def run():
     st.title('🍎 Nhận dạng trái cây')

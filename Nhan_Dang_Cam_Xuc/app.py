@@ -6,26 +6,20 @@ from keras.preprocessing.image import img_to_array
 from PIL import ImageFont, ImageDraw, Image
 
 def run():
-    st.title("🎭 Nhận dạng cảm xúc")
+    st.title("😊 Nhận dạng cảm xúc")
 
-    # Kiểm tra nếu mô hình chưa được tải vào session_state
-    if 'is_load' not in st.session_state:
-        # Tải mô hình nhận diện cảm xúc
+    if 'is_load_emotion' not in st.session_state:
         classifier = load_model(r"Nhan_Dang_Cam_Xuc\emotion_detection.h5")
         st.session_state.classifier = classifier
 
-        # Định nghĩa các nhãn cảm xúc
         class_labels = ['Giận dữ', 'Ghê sợ', 'Sợ hãi', 'Hạnh phúc', 'Buồn', 'Bất ngờ', 'Bình thường']
         st.session_state.class_labels = class_labels
 
-        # Cài đặt camera
         face_classifier = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
         st.session_state.face_classifier = face_classifier
 
-        # Đánh dấu đã tải xong
-        st.session_state.is_load = True
+        st.session_state.is_load_emotion = True
 
-    # Bật/tắt camera
     camera_on = st.checkbox("Bật/Tắt Camera")
     if camera_on:
         cap = cv2.VideoCapture(0)
@@ -53,7 +47,6 @@ def run():
                     preds = st.session_state.classifier.predict(roi)[0]
                     label = st.session_state.class_labels[preds.argmax()]
 
-                    # Vẽ văn bản lên hình
                     font = ImageFont.truetype("./arial.ttf", 20)
                     img_pil = Image.fromarray(frame)
                     draw = ImageDraw.Draw(img_pil)
@@ -64,7 +57,6 @@ def run():
 
             stframe.image(frame, channels="BGR")
 
-            # Thoát khi nhấn 'q'
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
