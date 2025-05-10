@@ -222,8 +222,8 @@ menu_items = [
     "🔢 Nhận dạng chữ số",
     "🎨 Nhận dạng màu sắc",
     "🚗 Nhận dạng biển số xe",
-    "🖐 Nhận dạng cử chỉ tay",
     "🚦 Nhận dạng biển báo đường bộ",
+    "🖐 Nhận dạng cử chỉ tay",
     "📝 Bài tập chương",
 ]
 
@@ -307,13 +307,13 @@ try:
                 from Nhan_Dang_Bien_So_Xe.app import run as Nhan_Dang_Bien_So_Xe_app
                 Nhan_Dang_Bien_So_Xe_app()
                 
-            elif st.session_state.current_menu == "🖐 Nhận dạng cử chỉ tay":
-                from Nhan_Dang_Cu_Chi_Tay.app import run as Nhan_Dang_Cu_Chi_Tay_app
-                Nhan_Dang_Cu_Chi_Tay_app()
-                
             elif st.session_state.current_menu == "🚦 Nhận dạng biển báo đường bộ":
                 from Nhan_Dang_Bien_Bao.app import run as Nhan_Dang_Bien_Bao_app
                 Nhan_Dang_Bien_Bao_app()
+
+            elif st.session_state.current_menu == "🖐 Nhận dạng cử chỉ tay":
+                from Nhan_Dang_Cu_Chi_Tay.app import run as Nhan_Dang_Cu_Chi_Tay_app
+                Nhan_Dang_Cu_Chi_Tay_app()
                 
             elif st.session_state.current_menu == "📝 Bài tập chương":
                 # Hiển thị module tương ứng với chương được chọn

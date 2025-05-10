@@ -16,7 +16,6 @@ def run():
         "📈 Histogram - Biểu đồ tần suất mức xám",
         "📏 Histogram Equalization - Bình phương tần số mức xám",
         "📊 Local Histogram - Tính toán biểu đồ tần suất theo vùng",
-        "🔵 Smoothing - Làm mịn ảnh",
         "🌫 Gaussian Smoothing - Làm mịn với bộ lọc Gaussian",
         "🔪 Sharpening - Làm sắc nét ảnh",
         "🖼 Unsharp Masking - Phương pháp làm sắc nét ngược",
@@ -27,7 +26,7 @@ def run():
     uploaded_file = st.file_uploader("📤 Chọn ảnh grayscale", type=["png", "jpg", "jpeg"])
 
     if uploaded_file is not None:
-        img_pil = Image.open(uploaded_file).convert("L")  # Chuyển sang grayscale
+        img_pil = Image.open(uploaded_file).convert("L") 
         img_np = np.array(img_pil)
         imgout = np.zeros_like(img_np)
 
@@ -146,11 +145,11 @@ def HistogramEqualization(imgin, imgout):
             r = imgin[x, y]
             h[r] = h[r] + 1
 
-    p = np.zeros(L, np.float)
+    p = np.zeros(L, np.float32)
     for r in range(0, L):
         p[r] = h[r] / (M * N)
 
-    s = np.zeros(L, np.float)
+    s = np.zeros(L, np.float32)
     for k in range(0, L):
         for j in range(0, k + 1):
             s[k] = s[k] + p[j]
@@ -210,7 +209,7 @@ def MySmoothing(imgin, imgout):
     n = 11
     a = m // 2
     b = m // 2
-    w = np.ones((m, n), np.float) / (m * n)
+    w = np.ones((m, n), np.float32) / (m * n)
     for x in range(a, M - a):
         for y in range(b, N - b):
             res = 0.0
@@ -226,9 +225,9 @@ def Smoothing(imgin):
     n = 21
     a = m // 2
     b = m // 2
-    w = np.ones((m, n), np.float64) / (m * n)
+    w = np.ones((m, n), np.int32) / (m * n)
     imgout = cv2.filter2D(imgin, cv2.CV_8UC1, w)
-    # imgout = cv2.blur(imgin, (m,n))
+    imgout = cv2.blur(imgin, (m,n))
     return imgout
 
 
@@ -239,7 +238,7 @@ def SmoothingGauss(imgin):
     a = m // 2
     b = m // 2
     sigma = 7.0
-    w = np.zeros((m, n), np.float)
+    w = np.zeros((m, n), np.int32)
     for s in range(-a, a + 1):
         for t in range(-b, b + 1):
             w[s + a, t + b] = np.exp(-(s * s + t * t) / (2 * sigma * sigma))

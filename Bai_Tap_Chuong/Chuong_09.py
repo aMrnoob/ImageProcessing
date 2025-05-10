@@ -16,7 +16,6 @@ def run():
         "🔄 Opening/Closing - Mở rộng/Đóng ảnh",
         "🔲 Boundary - Biên ảnh",
         "🕳️ Hole Fill - Lấp đầy lỗ",
-        "🔗 My Connected Component - Thành phần liên thông tự tạo",
         "🔍 Connected Component - Thành phần liên thông",
         "🌾 Count Rice - Đếm hạt gạo"
     ])
@@ -33,7 +32,12 @@ def run():
         elif option == "➕ Dilation - Phóng đại ảnh":
             imgout = Dilation(img_np)
         elif option == "🔄 Opening/Closing - Mở rộng/Đóng ảnh":
-            imgout = OpeningClosing(img_np, imgout)
+            method = st.radio("Chọn phương pháp:", ("Opening", "Closing"))
+            kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+            if method == "Opening":
+                imgout = cv2.morphologyEx(img_np, cv2.MORPH_OPEN, kernel)
+            else:
+                imgout = cv2.morphologyEx(img_np, cv2.MORPH_CLOSE, kernel)
         elif option == "🔲 Boundary - Biên ảnh":
             imgout = Boundary(img_np)
         elif option == "🕳️ Hole Fill - Lấp đầy lỗ":
@@ -59,10 +63,13 @@ def Dilation(imgin):
     w = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     return cv2.dilate(imgin, w)
 
-def OpeningClosing(imgin, imgout):
-    w = cv2.getStructuringElement(cv2.MORPH_RECT,(3,3))
-    temp = cv2.morphologyEx(imgin, cv2.MORPH_OPEN, w)
-    cv2.morphologyEx(temp, cv2.MORPH_CLOSE, w, imgout)
+def Opening(imgin):
+    w = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+    return cv2.morphologyEx(imgin, cv2.MORPH_OPEN, w)
+
+def Closing(imgin):
+    w = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+    return cv2.morphologyEx(imgin, cv2.MORPH_CLOSE, w)
 
 def Boundary(imgin):
     w = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
@@ -70,11 +77,30 @@ def Boundary(imgin):
     return imgin - temp
 
 def HoleFill(imgin):
-    imgout = imgin.copy()
-    M, N = imgout.shape
-    mask = np.zeros((M+2, N+2), np.uint8)
-    cv2.floodFill(imgout, mask, (105, 297), L-1)
-    return imgout
+    if len(imgin.shape) > 2:
+        gray = cv2.cvtColor(imgin, cv2.COLOR_BGR2GRAY)
+    else:
+        gray = imgin.copy()
+    
+    _, binary = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
+    
+    img_inv = cv2.bitwise_not(binary)
+    
+    h, w = img_inv.shape
+    mask = np.zeros((h + 2, w + 2), np.uint8)
+    
+    floodfilled = img_inv.copy()
+    seed_points = [(0, 0), (0, w-1), (h-1, 0), (h-1, w-1)]
+    
+    for seed in seed_points:
+        cv2.floodFill(floodfilled, mask, seed, 255)
+    
+    floodfilled_inv = cv2.bitwise_not(floodfilled)
+    
+    out = cv2.bitwise_or(binary, floodfilled_inv)
+    
+    return out
+
 
 def MyConnectedComponent(imgin):
     ret, temp = cv2.threshold(imgin, 200, L-1, cv2.THRESH_BINARY)
